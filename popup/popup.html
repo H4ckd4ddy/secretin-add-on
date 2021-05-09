@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="popup.css"/>
+	</head>
+	<body>
+		<div id="loading" style="display: none;"></div>
+		<div class="page" id="connect">
+			<input id='username' placeholder="username" type="text"><br/>
+			<input id='password' placeholder="password" type="password"><br/>
+			<input id='totp' placeholder="TOTP (optional)" type="text"><br/>
+			<button id='login_button'>login</button><br/>
+		</div>
+		<div class="page" id="main">
+			<input id='search' placeholder="search">
+			<br/>
+			<select id="results" size="4"></select>
+			<br/>
+			<button id='logout_button'>logout</button>
+		</div>
+		<script src="popup.js"></script>
+	</body>
+</html>
