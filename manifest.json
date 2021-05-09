@@ -2,7 +2,7 @@
   "description": "Basic client for Secret-in",
   "manifest_version": 2,
   "name": "Secret-in",
-  "version": "0.1",
+  "version": "0.2",
   "homepage_url": "https://github.com/secretin",
   "icons": {
     "48": "icons/icon-48.png"
