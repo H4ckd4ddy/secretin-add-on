@@ -1,5 +1,5 @@
-const id_keywords = ['user', 'username', 'identifiant', 'email', 'login', 'name', 'log']
-const pass_keywords = ['password', 'pass', 'pwd']
+const id_keywords = ['user', 'username', 'identifiant', 'email', 'login', 'name', 'log', 'utilisateur']
+const pass_keywords = ['password', 'pass', 'pwd', 'mdp']
 
 function complete(request, sender, sendResponse) {
 	var inputs = document.getElementsByTagName('input')
