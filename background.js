@@ -1,3 +1,5 @@
+var browser = browser || chrome
+
 var secretin = null
 var secrets = {}
 var is_loading = false
@@ -27,7 +29,7 @@ function handleMessage(request, sender, sendResponse) {
 	switch(request.action){
 		case 'login':
 			is_loading = true
-			browser.storage.sync.get("SECRETIN_API_URL").then(result => {
+			browser.storage.sync.get("SECRETIN_API_URL", function(result){
 				let api_url = result.SECRETIN_API_URL || 'https://api.secret-in.me'
 				secretin = new Secretin(SecretinBrowserAdapter, Secretin.API.Server, api_url)
 				secretin.username = request.username
@@ -37,7 +39,7 @@ function handleMessage(request, sender, sendResponse) {
 					secretin.loginUser(request.username, request.password).then(store_secrets_index)
 				}
 			})
-			break;
+			break
 
 		case 'logout':
 			secretin = null
@@ -74,6 +76,13 @@ function handleMessage(request, sender, sendResponse) {
 			sendResponse(results)
 			break
 
+		case 'get_secret':
+			secretin.getSecret(request.secret_id).then(result => {
+				let password = result.fields[1].content
+				sendResponse(password)
+			})
+			break
+
 		case 'complete':
 			secretin.getSecret(request.secret_id).then(result => {
 				let username = result.fields[0].content
@@ -81,7 +90,7 @@ function handleMessage(request, sender, sendResponse) {
 				browser.tabs.sendMessage(request.tab_id, {
 					username: username,
 					password: password
-				});
+				})
 			})
 			break
 
