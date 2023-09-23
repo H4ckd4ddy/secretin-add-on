@@ -1,3 +1,5 @@
+var browser = browser || chrome
+
 var secretin = null
 var secrets = {}
 var is_loading = false
@@ -87,6 +89,13 @@ function handleMessage(request, sender, sendResponse) {
 			sendResponse(results)
 			break
 
+		case 'get_secret':
+			secretin.getSecret(request.secret_id).then(result => {
+				let password = result.fields[1].content
+				sendResponse(password)
+			})
+			break
+
 		case 'complete':
 			secretin.getSecret(request.secret_id).then(result => {
 				let username = result.fields[0].content
@@ -94,7 +103,7 @@ function handleMessage(request, sender, sendResponse) {
 				browser.tabs.sendMessage(request.tab_id, {
 					username: username,
 					password: password
-				});
+				})
 			})
 			break
 

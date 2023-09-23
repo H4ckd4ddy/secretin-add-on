@@ -1,3 +1,4 @@
+var browser = browser || chrome
 
 document.getElementById("login_button").addEventListener("click", login);
 document.getElementById("shortlogin_button").addEventListener("click", shortlogin);
@@ -9,7 +10,7 @@ function search_current(){
 	browser.tabs.query({
 		currentWindow: true,
 		active: true
-	}).then(tabs => {
+	}, function(tabs){
 		let url_parts = tabs[0].url.split('://')[1]
 		let fqdn = url_parts.split('/')[0]
 		document.getElementById("search").value = fqdn
@@ -25,7 +26,7 @@ function search(keyword){
 	browser.runtime.sendMessage({
 		action: 'search',
 		keyword: keyword
-	}).then(results => {
+	}, function(results){
 		let results_table = document.getElementById('results')
 		results_table.innerHTML = ''
 		for(result in results){
@@ -33,6 +34,7 @@ function search(keyword){
 			new_option.innerHTML = results[result].title
 			new_option.value = results[result].id
 			new_option.ondblclick = function(){ use(this.value) }
+			//new_option.oncopy = function(event){ copy(this.value, event, this) }
 			results_table.appendChild(new_option)
 		}
 	})
@@ -41,15 +43,25 @@ function search(keyword){
 function use(id){
 	browser.tabs.executeScript({
       file: "/agent.js"
-    });
-    var querying = browser.tabs.query({
+    })
+    browser.tabs.query({
       active: true,
       currentWindow: true
-    });
-    querying.then(tabs => {
+    }, function(tabs){
     	complete(tabs[0], id)
-    });
+    })
 }
+
+/*function copy(id, event, element){
+	element.style.color = "red"
+	browser.runtime.sendMessage({
+		action: 'get_secret',
+		secret_id: id
+	}, function(secret){
+		event.clipboardData.setData('text/plain', secret)
+		event.preventDefault()
+	})
+}*/
 
 function complete(tab, secret_id){
 	browser.runtime.sendMessage({
@@ -69,7 +81,7 @@ function login(){
 		username: username,
 		password: password,
 		totp: totp
-	}).then(check_status)
+	}, check_status)
 }
 
 function shortlogin(){
@@ -83,13 +95,13 @@ function shortlogin(){
 function logout(){
 	browser.runtime.sendMessage({
 		action: 'logout'
-	}).then(check_status)
+	}, check_status)
 }
 
 function check_status(){
 	browser.runtime.sendMessage({
 		action: 'is_ready'
-	}).then(ready => {
+	}, function(ready){
 		document.getElementById('connect').style.display = (ready?'none':'inline')
 		document.getElementById('shortlogin').style.display = (ready?'none':'inline')
 		document.getElementById('main').style.display = (ready?'inline':'none')

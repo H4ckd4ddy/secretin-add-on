@@ -1,8 +1,12 @@
+var browser = browser || chrome
+
 const id_keywords = ['user', 'username', 'identifiant', 'email', 'login', 'name', 'log', 'utilisateur']
 const pass_keywords = ['password', 'pass', 'pwd', 'mdp']
 
 function complete(request, sender, sendResponse) {
 	var inputs = document.getElementsByTagName('input')
+
+	//var password_completed_count = 0
 
 	for(input in inputs){
 		var input_name
@@ -24,10 +28,15 @@ function complete(request, sender, sendResponse) {
 		for(pass_keyword in pass_keywords){
 			if(input_name.toLowerCase().includes(pass_keywords[pass_keyword])){
 				inputs[input].value = request.password
+				//password_completed_count++
 				continue
 			}
 		}
 	}
+
+	/*if(!password_completed_count){
+
+	}*/
 }
 
-browser.runtime.onMessage.addListener(complete);
+browser.runtime.onMessage.addListener(complete)
