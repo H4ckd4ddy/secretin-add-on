@@ -1,5 +1,6 @@
 
 document.getElementById("login_button").addEventListener("click", login);
+document.getElementById("shortlogin_button").addEventListener("click", shortlogin);
 document.getElementById("logout_button").addEventListener("click", logout);
 document.getElementById("search").addEventListener("keydown", search_change);
 window.addEventListener("DOMContentLoaded", check_status);
@@ -71,6 +72,14 @@ function login(){
 	}).then(check_status)
 }
 
+function shortlogin(){
+	let password = document.getElementById('shortlogin_password').value
+	browser.runtime.sendMessage({
+		action: 'shortlogin',
+		password: password
+	}).then(check_status)
+}
+
 function logout(){
 	browser.runtime.sendMessage({
 		action: 'logout'
@@ -82,9 +91,17 @@ function check_status(){
 		action: 'is_ready'
 	}).then(ready => {
 		document.getElementById('connect').style.display = (ready?'none':'inline')
+		document.getElementById('shortlogin').style.display = (ready?'none':'inline')
 		document.getElementById('main').style.display = (ready?'inline':'none')
 		if(ready){
 			search_current()
+		}else{
+			browser.runtime.sendMessage({
+				action: 'is_shortlogin_possible'
+			}).then(is_shortlogin_possible => {
+				document.getElementById('shortlogin').style.display = (is_shortlogin_possible?'inline':'none')
+				document.getElementById('connect').style.display = (is_shortlogin_possible?'none':'inline')
+			})
 		}
 	})
 }

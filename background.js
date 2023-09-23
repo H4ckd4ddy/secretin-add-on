@@ -2,7 +2,15 @@ var secretin = null
 var secrets = {}
 var is_loading = false
 
+function init(){
+	browser.storage.sync.get("SECRETIN_API_URL").then(result => {
+		let api_url = result.SECRETIN_API_URL || 'https://api.secret-in.me'
+		secretin = new Secretin(SecretinBrowserAdapter, Secretin.API.Server, api_url)
+	})
+}
+
 function store_secrets_index(results){
+	console.log(results)
 	for(secret in results.metadatas){
 		if(Object.keys(results.metadatas[secret].users[secretin.username].folders).length > 0){
 			secrets[secret] = {
@@ -27,17 +35,22 @@ function handleMessage(request, sender, sendResponse) {
 	switch(request.action){
 		case 'login':
 			is_loading = true
-			browser.storage.sync.get("SECRETIN_API_URL").then(result => {
-				let api_url = result.SECRETIN_API_URL || 'https://api.secret-in.me'
-				secretin = new Secretin(SecretinBrowserAdapter, Secretin.API.Server, api_url)
-				secretin.username = request.username
-				if(request.totp){
-					secretin.loginUser(request.username, request.password, request.totp).then(store_secrets_index)
-				}else{
-					secretin.loginUser(request.username, request.password).then(store_secrets_index)
-				}
-			})
-			break;
+			secretin.username = request.username
+			if(request.totp){
+				secretin.loginUser(request.username, request.password, request.totp).then(store_secrets_index)
+			}else{
+				secretin.loginUser(request.username, request.password).then(store_secrets_index)
+			}
+			break
+
+		case 'shortlogin':
+			is_loading = true
+			secretin.shortLogin(request.password).then(store_secrets_index)
+			break
+
+		case 'enable_shortlogin':
+			secretin.activateShortLogin('test', 'test').then(console.log)
+			break
 
 		case 'logout':
 			secretin = null
@@ -89,6 +102,14 @@ function handleMessage(request, sender, sendResponse) {
 			sendResponse(Object.keys(secrets).length > 0)
 			break
 
+		case 'is_shortlogin_possible':
+			sendResponse(secretin.canITryShortLogin())
+			break
+
+		case 'tmp':
+			sendResponse(Object.keys(secrets).length > 0)
+			break
+
 		case 'is_loading':
 			sendResponse(is_loading)
 			break
@@ -96,3 +117,4 @@ function handleMessage(request, sender, sendResponse) {
 }
 
 browser.runtime.onMessage.addListener(handleMessage)
+browser.runtime.onInstalled.addListener(init)
